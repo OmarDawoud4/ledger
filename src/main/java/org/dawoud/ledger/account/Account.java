@@ -47,6 +47,16 @@ public class Account {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+
+
+    public static Account open(String name , String currency) {
+        Account account = new Account();
+        account.name = name;
+        account.currency = currency;
+        account.status = AccountStatus.ACTIVE;
+        return account;
+    }
+
     @PrePersist
     void onCreate() {
         createdAt = Instant.now();
