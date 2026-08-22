@@ -1,15 +1,11 @@
 package org.dawoud.ledger.journal;
 
-
-//import jakarta.transaction.Transactional;
-import jakarta.transaction.InvalidTransactionException;
 import org.dawoud.ledger.account.Account;
 import org.dawoud.ledger.account.AccountRepository;
 import org.dawoud.ledger.account.AccountStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -81,6 +77,13 @@ public class TransferService {
         if (sum != 0) {
             throw new IllegalStateException("journal entry not balanced: sum=" + sum);
         }
+    }
+
+
+    @Transactional(readOnly = true)
+    public long balanceOf(UUID accountId) {
+        load(accountId);
+        return postings.balanceOf(accountId);
     }
 
 }

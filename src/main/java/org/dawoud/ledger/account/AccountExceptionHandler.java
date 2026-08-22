@@ -1,5 +1,8 @@
 package org.dawoud.ledger.account;
 
+import org.dawoud.ledger.journal.AccountNotFoundException;
+import org.dawoud.ledger.journal.InsufficientFundsException;
+import org.dawoud.ledger.journal.InvalidTransferException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -25,6 +28,27 @@ public class AccountExceptionHandler {
         problem.setProperty("errors", ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .toList());
+        return problem;
+    }
+
+    @ExceptionHandler(AccountNotFoundException.class)
+    ProblemDetail handleNotFound(AccountNotFoundException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problem.setTitle("Account not found");
+        return problem;
+    }
+
+    @ExceptionHandler(InsufficientFundsException.class)
+    ProblemDetail handleInsufficientFunds(InsufficientFundsException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Insufficient funds");
+        return problem;
+    }
+
+    @ExceptionHandler(InvalidTransferException.class)
+    ProblemDetail handleInvalidTransfer(InvalidTransferException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("Invalid transfer");
         return problem;
     }
 }
