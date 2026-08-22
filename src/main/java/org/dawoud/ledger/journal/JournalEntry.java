@@ -35,6 +35,9 @@ public class JournalEntry {
     }
 
 
+    public static JournalEntry createInternal (){
+        return new JournalEntry(null);
+    }
     @PrePersist
     void onCreate (){
         createdAt = Instant.now();
