@@ -1,6 +1,7 @@
 package org.dawoud.ledger.account;
 
 import org.dawoud.ledger.journal.AccountNotFoundException;
+import org.dawoud.ledger.journal.DuplicateReferenceException;
 import org.dawoud.ledger.journal.InsufficientFundsException;
 import org.dawoud.ledger.journal.InvalidTransferException;
 import org.springframework.http.HttpStatus;
@@ -49,6 +50,13 @@ public class AccountExceptionHandler {
     ProblemDetail handleInvalidTransfer(InvalidTransferException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         problem.setTitle("Invalid transfer");
+        return problem;
+    }
+
+    @ExceptionHandler(DuplicateReferenceException.class)
+    ProblemDetail handleDuplicateReference(DuplicateReferenceException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Duplicate reference");
         return problem;
     }
 }

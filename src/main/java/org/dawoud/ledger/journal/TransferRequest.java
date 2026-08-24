@@ -1,5 +1,6 @@
 package org.dawoud.ledger.journal;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
@@ -12,7 +13,9 @@ public record TransferRequest(
         @NotNull
         UUID toAccountId ,
         @Positive
-        long amountMinor
+        long amountMinor,
+        @NotBlank
+        String reference
 
 ) {
 }

@@ -19,10 +19,11 @@ public class TransferController {
     @PostMapping("/transfers")
     public ResponseEntity<TransferResponse> transfer(@Valid @RequestBody TransferRequest transferRequest) {
         JournalEntry entry = service.transfer(
+                transferRequest.reference(),
                 transferRequest.fromAccountId(),
                 transferRequest.toAccountId(),
                 transferRequest.amountMinor()
-        ) ;
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(TransferResponse.from(entry));    }
 
 

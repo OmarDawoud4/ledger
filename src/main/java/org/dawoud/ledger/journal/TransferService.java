@@ -3,6 +3,7 @@ package org.dawoud.ledger.journal;
 import org.dawoud.ledger.account.Account;
 import org.dawoud.ledger.account.AccountRepository;
 import org.dawoud.ledger.account.AccountStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +23,13 @@ public class TransferService {
     }
 
     @Transactional
-    public JournalEntry transfer(UUID fromAccountId, UUID toAccountId, long amountMinor) {
+    public JournalEntry transfer(String reference , UUID fromAccountId, UUID toAccountId, long amountMinor) {
+        var replay = entries.findByReference(reference);
+        if (replay.isPresent()) {
+            return replay.get();
+        }
+
+
         validateInput(fromAccountId, toAccountId, amountMinor);
         Account from = load(fromAccountId);
         Account to = load(toAccountId);
@@ -31,7 +38,7 @@ public class TransferService {
             throw new InsufficientFundsException(fromAccountId, amountMinor);
         }
 
-        JournalEntry entry = JournalEntry.createInternal();
+        JournalEntry entry = JournalEntry.create(reference);
 
         List<Posting> legs = List.of(
                 Posting.create(entry,from, -amountMinor),
@@ -39,8 +46,13 @@ public class TransferService {
         );
 
         assertBalanced(legs);
+        try {
+            entries.saveAndFlush(entry);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateReferenceException(reference);
+        }
 
-        entries.save(entry);
+
         postings.saveAll(legs);
         return  entry;
 
