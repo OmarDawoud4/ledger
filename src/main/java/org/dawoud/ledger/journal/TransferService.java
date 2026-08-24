@@ -57,7 +57,7 @@ public class TransferService {
 
     }
     private Account load(UUID id) {
-        return accounts.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
+        return accounts.findByIdForUpdate(id).orElseThrow(() -> new AccountNotFoundException(id));
     }
 
 
@@ -82,7 +82,8 @@ public class TransferService {
 
     @Transactional(readOnly = true)
     public long balanceOf(UUID accountId) {
-        load(accountId);
+        accounts.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
         return postings.balanceOf(accountId);
     }
 
